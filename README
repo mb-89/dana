@@ -1,0 +1,12 @@
+dana
+
+usage: py -m dana.py [-h] [-v] [path]
+
+a module for Data ANAlysis
+
+positional arguments:
+  path           path to the repo to analyze
+
+options:
+  -h, --help     show this help message and exit
+  -v, --version  prints version
