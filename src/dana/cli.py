@@ -12,7 +12,7 @@ def parseArgs(argv):
     p.add_argument("-v", "--version", action="store_true", help="prints version")
 
     p.add_argument(
-        "path", type=str, help="path to the repo to analyze", default=None, nargs="?"
+        "-srcs", type=str, help="list of data src paths", default=[], nargs="*"
     )
 
     args = vars(p.parse_args(argv))
@@ -20,8 +20,6 @@ def parseArgs(argv):
 
 
 def main(argv=None):
-    if not argv:
-        argv = ["-h"]
     args, parser = parseArgs(argv)
     if args["version"]:
         print(__metadata__.__version__)
@@ -29,4 +27,5 @@ def main(argv=None):
 
     from . import api
 
+    api.showgui(args)
     return 0

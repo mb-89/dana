@@ -1,12 +1,10 @@
 dana
 
-usage: py -m dana.py [-h] [-v] [path]
+usage: py -m dana.py [-h] [-v] [-srcs [SRCS ...]]
 
 a module for Data ANAlysis
 
-positional arguments:
-  path           path to the repo to analyze
-
 options:
-  -h, --help     show this help message and exit
-  -v, --version  prints version
+  -h, --help        show this help message and exit
+  -v, --version     prints version
+  -srcs [SRCS ...]  list of data src paths
