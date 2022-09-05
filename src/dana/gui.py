@@ -1,9 +1,8 @@
 import PySide6  # noqa: F401 # isort:skip
 import pyqtgraph as pg  # isort:skip
-from pyqtgraph.dockarea.DockArea import DockArea
-from pyqtgraph.Qt import QtCore, QtWidgets
 
-from dana.guicomponents import datatree, metaplot, plot
+from pyqtgraph.Qt import QtCore, QtWidgets
+from dana.guicomponents import dock, dock_df, dock_ds, dock_p, dock_figure
 
 from . import __metadata__, api
 
@@ -18,55 +17,35 @@ def mkgui(args):
     app = pg.mkQApp(__metadata__.__projname__)
     win = QtWidgets.QMainWindow()
     win.resize(1000, 800)
-    docks = Docks()
+    docks = dock.DockArea()
     win.setCentralWidget(docks)
     win.setWindowTitle(__metadata__.__projname__)
+    win.setStatusBar(QtWidgets.QStatusBar())
 
     app.data = api.getDatacontainer()
     app.args = args
     app.gui = docks
 
-    dtd = datatree.DatatreeDock()
-
-    dockList = [(dtd, "top")]
-
-    for d, pos in dockList:
-        docks.addDock(d, pos)
-
-    def startup():
-        # read all data
-        for src in args["srcs"]:
-            app.data.open(src)
-        # initialize all docks
-        for d, _ in dockList:
-            if hasattr(d, "startup"):
-                d.startup()
+    mkDocks(app)
 
     QtCore.QTimer.singleShot(0, startup)
-
-    def addMetadataDock():
-        mpd = metaplot.MetaplotDock()
-        app.gui.addDock(mpd, "right", dtd)
-        # mpd.float()
-
-        def applyfiltfun(txt):
-            dtd.filterEdit.setCurrentText(txt)
-            dtd.filter()
-
-        mpd.applyFilt.connect(applyfiltfun)
-
-    def addPlotDock(filt):
-        pd = plot.PlotDock(filt)
-        app.gui.addDock(pd, "bottom", dtd)
-
-    dtd.plotMetaSignal.connect(addMetadataDock)
-    dtd.plotSignal.connect(addPlotDock)
 
     return win
 
 
-class Docks(DockArea):
-    def makeContainer(self, typ):
-        new = super().makeContainer(typ)
-        new.setChildrenCollapsible(False)
-        return new
+def mkDocks(app):
+    dfdock = dock_df.Dock(pos=("left", None))
+    dsdock = dock_ds.Dock(pos=("bottom", dfdock))
+    pdock = dock_p.Dock(pos=("bottom", dsdock))
+    fdock = dock_figure.Dock(pos=("right", None))
+    area = app.gui
+    for d in [dfdock, dsdock, pdock, fdock]:
+        area.addDock(d, *d.pos)
+
+
+def startup():
+    app = pg.mkQApp()
+    args = app.args
+    for src in args["srcs"]:
+        app.data.open(src)
+    app.gui.startup()

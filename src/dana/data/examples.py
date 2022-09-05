@@ -25,6 +25,10 @@ examplegallery = {"stepresponses": createStepresponses}
 
 def createStepresponse(omega, zeta):
     df = pd.DataFrame()
+    df["time"] = np.zeros(100)
+    df["y1"] = np.zeros(100)
+    df["y2"] = np.zeros(100)
+    df.set_index("time",inplace=True)
     # using the formulas from
     # https://electronics.stackexchange.com/questions/296567/over-and-critically-damped-systems-settling-time
     # we can estimate the settling time without calculating the complete stepresponse

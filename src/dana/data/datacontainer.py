@@ -18,7 +18,10 @@ class Datacontainer:
         self.srcs.append(src)
         if src == "#example":
             for k, v in examples.getExampleData(src):
-                self.store[k] = v
+                idxname = v.index.name
+                cols = v.columns
+                self.store[k] = v.reset_index()
+                self.store[k].attrs["indexdata"] = json.dumps([idxname] + list(cols))
                 self.store[k].attrs["metadata"] = json.dumps(v.attrs)
 
     def getKeys(self):
@@ -30,6 +33,9 @@ class Datacontainer:
     def getMetaData(self, key):
         return json.loads(self.store[key].attrs.get("metadata", "{}"))
 
+    def getIndexData(self, key):
+        return json.loads(self.store[key].attrs.get("indexdata", "[]"))
+
     def getMetaDataColumns(self):
         cols = set(
             chain.from_iterable(self.getMetaData(y).keys() for y in self.getKeys())
@@ -38,8 +44,25 @@ class Datacontainer:
 
     def getMetaDataFrame(self, filt=""):
         keys = self.getKeys()
-        df = pd.DataFrame(self.getMetaData(x) for x in keys).reset_index()
+        df = pd.DataFrame(self.getMetaData(x) for x in keys).reset_index(drop=True)
         df["key"] = keys
+        df["index"] = [f"df{str(idx).zfill(4)}" for idx in range(len(keys))]
+        df.insert(0, "index", df.pop("index"))
+        df.set_index("key", inplace=True)
+        if filt:
+            try:
+                df = df.query(filt)
+            except:
+                pass
+        return df
+
+    def getIndexDataFrame(self, filt=""):
+        keys = self.getKeys()
+        indices = set(chain.from_iterable(self.getIndexData(y) for y in keys))
+
+        df = pd.DataFrame()
+        df["index"] = [f"ds{str(idx).zfill(4)}" for idx in range(len(indices))]
+        df["key"] = sorted(indices)
         df.set_index("key", inplace=True)
         if filt:
             try:

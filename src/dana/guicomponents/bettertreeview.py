@@ -18,12 +18,15 @@ class Bettertreeview(QtWidgets.QTreeView):
         self.setHeader(self.header)
         self.setSortingEnabled(True)
         self.setAlternatingRowColors(True)
+        self.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
 
 
 class Bettermdl(QtCore.QSortFilterProxyModel):
     def __init__(self):
         super().__init__()
         self.cols = []
+        self.srcmdl = QtGui.QStandardItemModel()
+        self.setSourceModel(self.srcmdl)
 
     def updateMdl(self, df):
         mdl = self.sourceModel()
