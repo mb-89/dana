@@ -1,13 +1,15 @@
-from . import dock as _D
-from pyqtgraph.Qt import QtWidgets
-from dana.guicomponents.betterlineedit import BetterlineEdit as BLE
-import dana.guicomponents.bettertreeview as BTV
 import pyqtgraph as pg
+from pyqtgraph.Qt import QtWidgets
+
+import dana.guicomponents.bettertreeview as BTV
+from dana.guicomponents.betterlineedit import BetterlineEdit as BLE
+
+from . import dock as _D
 
 dfqueryLink = "pandas.pydata.org/docs/reference/api/pandas.DataFrame.query.html"
 
 
-class Dock(_D.Dock):
+class Dock(_D.BetterDock):
     def __init__(self, pos=None):
         super().__init__("plots", pos=pos)
 

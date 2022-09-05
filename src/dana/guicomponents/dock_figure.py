@@ -1,10 +1,12 @@
-from . import dock as _D
 from pyqtgraph.Qt import QtWidgets
-from dana.guicomponents.betterlineedit import BetterlineEdit as BLE
+
 import dana.guicomponents.bettertreeview as BTV
+from dana.guicomponents.betterlineedit import BetterlineEdit as BLE
+
+from . import dock as _D
 
 
-class Dock(_D.Dock):
+class Dock(_D.BetterDock):
     def __init__(self, pos=None):
         super().__init__("figure", pos=pos, closable=True)
 

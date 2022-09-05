@@ -12,6 +12,8 @@ class Header(QtWidgets.QHeaderView):
 
 
 class Bettertreeview(QtWidgets.QTreeView):
+    selectionChanged = QtCore.Signal(tuple)
+
     def __init__(self):
         super().__init__()
         self.header = Header(QtCore.Qt.Horizontal, self)
@@ -19,6 +21,14 @@ class Bettertreeview(QtWidgets.QTreeView):
         self.setSortingEnabled(True)
         self.setAlternatingRowColors(True)
         self.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
+
+    def getselection(self):
+        selectedIDX = self.selectedIndexes()
+        self.selectionChanged.emit(tuple(x for x in selectedIDX if x))
+
+    def setModel(self, mdl):
+        super().setModel(mdl)
+        self.selectionModel().selectionChanged.connect(self.getselection)
 
 
 class Bettermdl(QtCore.QSortFilterProxyModel):

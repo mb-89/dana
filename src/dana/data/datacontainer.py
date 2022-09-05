@@ -1,10 +1,10 @@
 import json
+from itertools import chain
 
 import h5py
+import pandas as pd
 
 from dana.data import examples
-from itertools import chain
-import pandas as pd
 
 
 class Datacontainer:

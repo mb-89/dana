@@ -2,7 +2,8 @@ import PySide6  # noqa: F401 # isort:skip
 import pyqtgraph as pg  # isort:skip
 
 from pyqtgraph.Qt import QtCore, QtWidgets
-from dana.guicomponents import dock, dock_df, dock_ds, dock_p, dock_figure
+
+from dana.guicomponents import dock, dock_df, dock_ds, dock_figure, dock_p
 
 from . import __metadata__, api
 
@@ -17,7 +18,7 @@ def mkgui(args):
     app = pg.mkQApp(__metadata__.__projname__)
     win = QtWidgets.QMainWindow()
     win.resize(1000, 800)
-    docks = dock.DockArea()
+    docks = dock.BetterDockArea()
     win.setCentralWidget(docks)
     win.setWindowTitle(__metadata__.__projname__)
     win.setStatusBar(QtWidgets.QStatusBar())

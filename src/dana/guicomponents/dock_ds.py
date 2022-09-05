@@ -1,13 +1,14 @@
-from . import dock as _D
-from pyqtgraph.Qt import QtCore, QtWidgets, QtGui
+import pyqtgraph as pg
+from pyqtgraph.Qt import QtCore, QtGui, QtWidgets
+
 from dana.guicomponents.betterlineedit import BetterlineEdit as BLE
 
-import pyqtgraph as pg
+from . import dock as _D
 
 dfqueryLink = "pandas.pydata.org/docs/reference/api/pandas.DataFrame.query.html"
 
 
-class Dock(_D.Dock):
+class Dock(_D.BetterDock):
     def __init__(self, pos=None):
         super().__init__("dataseries", pos=pos)
         self.filt = BLE("filter query", f"help: {dfqueryLink}")
@@ -23,6 +24,7 @@ class Dock(_D.Dock):
         self.filt.valueChanged.connect(self.loadData)
         self.sel.valueChanged.connect(self.selectData)
         self.getdata = pg.mkQApp().data.getIndexDataFrame
+        self.selectionExprChanged.connect(self.sel.lineEdit().setText)
 
     def startup(self):
         self.loadData()
