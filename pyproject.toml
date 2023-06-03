@@ -1,0 +1,55 @@
+dependencies = [""]
+[project]
+name = "dana"
+version = "0.0.0"
+description = "A tool and pandas plotting backend for data analysis."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT License"}
+classifiers= ["Programming Language :: Python :: 3"]
+
+[[project.authors]]
+name = "mb"
+[build-system]
+requires = ["setuptools>=42.0","wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+addopts = "--capture=sys"
+testpaths = ["tests",]
+
+[install]
+executable = true
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "flake8",
+    "pytest",
+    "pytest-html",
+    "isort",
+    "build",
+    "tox",
+    "flake8-docstrings",
+    "sphinx",
+    "sphinx-rtd-theme",
+]
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+minversion = 3.10
+envlist = py310
+isolated_build = true
+
+[testenv]
+deps = 
+    
+        pytest
+setenv = 
+    PYTHONPATH = {toxinidir}
+commands = 
+    pytest --basetemp={envtmpdir}
+
+
+"""

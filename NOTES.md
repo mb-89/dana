@@ -1,0 +1,1 @@
+#TODO: Add an example browser like pyqtgraph (maybe even reuse code?)
