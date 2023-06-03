@@ -1,5 +1,10 @@
 """Analyzes and plots data."""
 
+from matplotlib.backends.backend_qtagg import FigureCanvas
+from matplotlib.backends.backend_qtagg import \
+    NavigationToolbar2QT as NavigationToolbar
+from pyqtgraph import QtWidgets, exec, mkQApp  # noqa: F401
+
 
 def plot(data, kind, **kwargs):
     """Provide an entry point for pandas.
@@ -12,7 +17,12 @@ def plot(data, kind, **kwargs):
     We add the entry point dynamically, so it also works in editable mode:
     https://stackoverflow.com/a/48666503
     """
-    data.plot(backend="matplotlib", kind=kind, **kwargs)
+    p = data.plot(backend="matplotlib", kind=kind, **kwargs)
+
+    if not isinstance(p, QtWidgets.QWidget):
+        p = _wrapInWidget(p)
+
+    return p
 
 
 def _addEntryPoint():
@@ -25,4 +35,15 @@ def _addEntryPoint():
     pkg_resources.working_set.add(d, "dana")
 
 
+def _wrapInWidget(p):
+    w = QtWidgets.QWidget()
+    la = QtWidgets.QVBoxLayout(w)
+    canvas = FigureCanvas(p.get_figure())
+    la.addWidget(NavigationToolbar(canvas, w))
+    la.addWidget(canvas)
+
+    return w
+
+
+mkQApp()
 _addEntryPoint()

@@ -18,6 +18,9 @@ build-backend = "setuptools.build_meta"
 addopts = "--capture=sys"
 testpaths = ["tests",]
 
+[tool.coverage.run]
+omit = ["*examples/[!_]*.py"]
+
 [install]
 executable = true
 
