@@ -1,9 +1,8 @@
 """Analyzes and plots data."""
 
-from matplotlib.backends.backend_qtagg import FigureCanvas
-from matplotlib.backends.backend_qtagg import \
-    NavigationToolbar2QT as NavigationToolbar
-from pyqtgraph import QtWidgets, exec, mkQApp  # noqa: F401
+import pyqtgraph as pg
+
+exec = pg.exec
 
 
 def plot(data, kind, **kwargs):
@@ -19,7 +18,7 @@ def plot(data, kind, **kwargs):
     """
     p = data.plot(backend="matplotlib", kind=kind, **kwargs)
 
-    if not isinstance(p, QtWidgets.QWidget):
+    if not isinstance(p, pg.QtWidgets.QWidget):
         p = _wrapInWidget(p)
 
     return p
@@ -36,14 +35,18 @@ def _addEntryPoint():
 
 
 def _wrapInWidget(p):
-    w = QtWidgets.QWidget()
-    la = QtWidgets.QVBoxLayout(w)
+    """Wrap the output of the default plotter in a QWidget."""
+    from matplotlib.backends.backend_qtagg import FigureCanvas
+    from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NTB
+
+    w = pg.QtWidgets.QWidget()
+    la = pg.QtWidgets.QVBoxLayout(w)
     canvas = FigureCanvas(p.get_figure())
-    la.addWidget(NavigationToolbar(canvas, w))
+    la.addWidget(NTB(canvas, w))
     la.addWidget(canvas)
 
     return w
 
 
-mkQApp()
+pg.mkQApp()
 _addEntryPoint()

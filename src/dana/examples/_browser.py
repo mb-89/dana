@@ -1,17 +1,28 @@
 """Browser for dana examples."""
 
-from functools import lru_cache
+from enum import Enum
 from pathlib import Path
 
 import pyqtgraph as pg
 from pyqtgraph.examples.ExampleApp import PythonHighlighter
 from pyqtgraph.Qt import QtCore, QtGui, QtWidgets
 
-DATA_USERROLE = QtCore.Qt.UserRole
-DATA_PATH = DATA_USERROLE + 1
+
+class DATA(Enum):
+    """Data shorthands used to store stuff in qt items."""
+
+    USERROLE = QtCore.Qt.UserRole
+    PATH = QtCore.Qt.UserRole + 1
 
 
-def show():
+class FILTMODE(Enum):
+    """Options for the example filters."""
+
+    FILENAME = 1
+    FILECONTENT = 2
+
+
+def show():  # pragma: no cover: browser is tested completely in test_examples
     """Show the example browser."""
     pg.mkQApp()
 
@@ -47,6 +58,12 @@ class Browser(QtWidgets.QMainWindow):
         self.action_run_sc = QtGui.QShortcut(QtGui.QKeySequence("F5"), self)
         self.action_run_sc.activated.connect(self.run)
         self.ui.runButton.clicked.connect(self.run)
+
+        self.action_filt_sc = QtGui.QShortcut(QtGui.QKeySequence("F2"), self)
+        self.action_filt_sc.activated.connect(self.filt)
+        self.action_filt_sc = QtGui.QShortcut(QtGui.QKeySequence("F3"), self)
+        self.action_filt_sc.activated.connect(lambda: self.filt(content=True))
+
         self._runvars = {}
 
     def run(self, file=None):
@@ -60,7 +77,15 @@ class Browser(QtWidgets.QMainWindow):
         self._runvars = {}
         exec(code, self._runvars)
 
-    @lru_cache(25)
+    def filt(self, content=False):
+        """Filter Example list by name or content."""
+        filt = self.ui.filter.text()
+        mdl = self.ui.files.model()
+        mdl._mode = FILTMODE.FILECONTENT if content else FILTMODE.FILENAME
+        self.hl.searchText = filt if FILTMODE.FILECONTENT else None
+        mdl.setFilterRegularExpression(filt)
+        mdl.setFilterCaseSensitivity(QtCore.Qt.CaseInsensitive)
+
     def txt2code(self, txt, name):
         """Convert the text in the editor to an executable object."""
         code = compile(txt, name, "exec")
@@ -83,7 +108,7 @@ class Browser(QtWidgets.QMainWindow):
             if parentItem is None:
                 if not parents:
                     parentItem = root
-                else:
+                else:  # pragma: no cover / only needed once we have nested examples
                     grandparent = items.get(parents[:-1])
                     parentItem = QtGui.QStandardItem(str(parents[-1].stem))
                     parentItem.setEditable(False)
@@ -91,12 +116,15 @@ class Browser(QtWidgets.QMainWindow):
                 items[parents] = parentItem
 
             item = QtGui.QStandardItem(str(ex.name))
-            item.setData(ex, DATA_PATH)
+            item.setData(ex, DATA.PATH.value)
             item.setEditable(False)
             parentItem.appendRow([item])
             fileItems.append(item)
 
-        self.ui.files.setModel(mdl)
+        proxyMdl = TreeMdl()
+        proxyMdl.setSourceModel(mdl)
+
+        self.ui.files.setModel(proxyMdl)
         self.ui.files.expandAll()
         self.ui.files.selectionModel().selectionChanged.connect(self.showFile)
         self.ui.files.selectionModel().select(
@@ -115,11 +143,35 @@ class Browser(QtWidgets.QMainWindow):
             return
         else:
             selectedIDX = selectedIDX[0]
-        selectedItem = self.ui.files.model().itemFromIndex(selectedIDX)
-        fn = selectedItem.data(DATA_PATH)
+
+        fn = selectedIDX.data(DATA.PATH.value)
+        if fn is None or not fn.is_file():  # pragma: no cover: generic edge-case
+            return
         self.currentFile = fn
         self.ui.code.setPlainText(open(fn, "r").read())
         self.ui.fileLabel.setText(" " + str(fn))
+
+
+class TreeMdl(QtCore.QSortFilterProxyModel):
+    """A Tree that allows for filtering by name and content."""
+
+    def __init__(self):
+        super().__init__()
+        self.setRecursiveFilteringEnabled(True)
+        self._mode = FILTMODE.FILENAME
+
+    def filterAcceptsRow(self, row, parent):
+        """Return true if the element is accepted by the filter, else false."""
+        if self._mode == FILTMODE.FILENAME:
+            return super().filterAcceptsRow(row, parent)
+
+        sm = self.sourceModel()
+        fn = sm.index(row, 0, parent).data(DATA.PATH.value)
+        if fn is None or not fn.is_file():  # pragma: no cover / edge case for empty nodes/files
+            return False
+
+        txt = open(fn, "r").read()
+        return self.filterRegularExpression().globalMatch(txt).hasNext()
 
 
 class Browser_template(object):

@@ -13,7 +13,7 @@ def main(argv):
         print(parser._moduleversion)
         return 0
 
-    if args["examples"]:
+    if args["examples"]:  # pragma: no cover / tested explicitely in tests_examples
         import dana.examples
 
         dana.examples.show()

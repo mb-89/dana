@@ -1,4 +1,4 @@
 """Examples for dana."""
-from dana.examples._browser import show
+from dana.examples._browser import show  # pragma: no cover
 
-show()
+show()  # pragma: no cover
