@@ -14,10 +14,18 @@ def main(argv):
         return 0
 
     if args["examples"]:  # pragma: no cover / tested explicitely in tests_examples
+        import dana
         import dana.examples
 
-        dana.examples.show()
-        return 0
+        examples = dana.examples.getExampleFiles()
+        if args["src"] in examples:
+            name = args["src"]
+            code = open(examples[name], "r").read()
+            _ = dana.examples.runExample(name, code)
+            dana.exec()
+        else:
+            dana.examples.show()
+            return 0
 
 
 def mkparser(parser=None):
@@ -35,6 +43,7 @@ def mkparser(parser=None):
         )
     parser._moduleversion = metadata["version"]
 
+    parser.add_argument("src", nargs="?", default=None, help="source, if given")
     parser.add_argument("-v", "--version", action="store_true", help="prints version")
     parser.add_argument("--examples", action="store_true", help="shows example browser")
 

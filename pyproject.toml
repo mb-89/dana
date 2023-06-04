@@ -1,4 +1,4 @@
-dependencies = [""]
+dependencies = ["matplotlib~=3.6.0", "pyqtgraph~=0.13.1", "pandas~=1.4.3", "ipython~=8.14.0", "PySide6~=6.5.1"]
 [project]
 name = "dana"
 version = "0.0.0"
@@ -47,8 +47,13 @@ isolated_build = true
 
 [testenv]
 deps = 
-    
+    matplotlib~=3.6.0
+        pyqtgraph~=0.13.1
+        pandas~=1.4.3
+        ipython~=8.14.0
+        PySide6~=6.5.1
         pytest
+        pytest-qt
 setenv = 
     PYTHONPATH = {toxinidir}
 commands = 

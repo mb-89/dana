@@ -1,11 +1,18 @@
 """Analyzes and plots data."""
 
-import pyqtgraph as pg
-
-exec = pg.exec
+import PySide6  # noqa: F401
 
 
 def plot(data, kind, **kwargs):
+    """Plot the given dataframe."""
+    import pyqtgraph as pg
+
+    try:
+        from IPython import get_ipython
+
+        ipy = get_ipython()
+    except ImportError:  # pragma: no cover / only needed on some venvs
+        ipy = None
     """Provide an entry point for pandas.
 
     | Can be executed via:
@@ -16,10 +23,20 @@ def plot(data, kind, **kwargs):
     We add the entry point dynamically, so it also works in editable mode:
     https://stackoverflow.com/a/48666503
     """
-    p = data.plot(backend="matplotlib", kind=kind, **kwargs)
+
+    match kind:
+        case "line":
+            from dana.lineplot import createPlot
+
+            p = createPlot(data, **kwargs)
+        case _:
+            p = data.plot(backend="matplotlib", kind=kind, **kwargs)
 
     if not isinstance(p, pg.QtWidgets.QWidget):
         p = _wrapInWidget(p)
+
+    if ipy is not None:  # pragma: no cover / only needed in interactive mode
+        ipy.magic("gui qt")
 
     return p
 
@@ -36,6 +53,7 @@ def _addEntryPoint():
 
 def _wrapInWidget(p):
     """Wrap the output of the default plotter in a QWidget."""
+    import pyqtgraph as pg
     from matplotlib.backends.backend_qtagg import FigureCanvas
     from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NTB
 
@@ -48,5 +66,19 @@ def _wrapInWidget(p):
     return w
 
 
-pg.mkQApp()
+def exec():  # pragma: no cover: only called when directly used in foreign scripts
+    """Execute the qt event loop."""
+    import pyqtgraph as pg
+
+    pg.exec()
+
+
+def mkQApp():
+    """Create a qt app. Needed before constructing any widgets."""
+    import pyqtgraph as pg
+
+    pg.mkQApp()
+
+
+mkQApp()
 _addEntryPoint()

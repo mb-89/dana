@@ -64,7 +64,7 @@ class Browser(QtWidgets.QMainWindow):
         self.action_filt_sc = QtGui.QShortcut(QtGui.QKeySequence("F3"), self)
         self.action_filt_sc.activated.connect(lambda: self.filt(content=True))
 
-        self._runvars = {}
+        self._buf = {}
 
     def run(self, file=None):
         """Run the given example (or the currently opened one)."""
@@ -73,9 +73,11 @@ class Browser(QtWidgets.QMainWindow):
         if file is None:
             return
         edittxt = self.ui.code.toPlainText()
-        code = self.txt2code(edittxt, self.currentFile.name)
-        self._runvars = {}
-        exec(code, self._runvars)
+        from dana.examples import runExample
+
+        results = runExample(self.currentFile.name, edittxt)
+        self._buf = results
+        return results
 
     def filt(self, content=False):
         """Filter Example list by name or content."""
@@ -86,22 +88,18 @@ class Browser(QtWidgets.QMainWindow):
         mdl.setFilterRegularExpression(filt)
         mdl.setFilterCaseSensitivity(QtCore.Qt.CaseInsensitive)
 
-    def txt2code(self, txt, name):
-        """Convert the text in the editor to an executable object."""
-        code = compile(txt, name, "exec")
-        return code
-
     def loadFiles(self):
         """Load all example files into the list in the GUI."""
+        from dana.examples import getExampleFiles
+
         mdl = QtGui.QStandardItemModel()
         root = mdl.invisibleRootItem()
         p = Path(__file__)
         pp = p.parent
         items = {}
         fileItems = []
-        for ex in pp.glob("**/*.py"):
-            if ex.stem.startswith("_"):
-                continue
+        exampledict = getExampleFiles()
+        for ex in exampledict.values():
             pr = ex.relative_to(pp)
             parents = tuple(reversed(pr.parents))[1:]
             parentItem = items.get(parents)
