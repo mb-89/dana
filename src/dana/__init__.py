@@ -1,4 +1,7 @@
-"""Analyzes and plots data."""
+"""Analyzes and plots data. For Examples: py -m dana --examples."""
+
+from functools import partial
+from pathlib import Path
 
 import PySide6  # noqa: F401
 
@@ -38,6 +41,7 @@ def plot(data, kind, **kwargs):
     if ipy is not None:  # pragma: no cover / only needed in interactive mode
         ipy.magic("gui qt")
 
+    p.resize(1200, 800)
     return p
 
 
@@ -64,6 +68,47 @@ def _wrapInWidget(p):
     la.addWidget(canvas)
 
     return w
+
+
+def plotfiles(fns, args={}):
+    """Plot the given files. Tries to use pandas.read_x to read file into a df."""
+    import pandas as pd
+
+    from dana import fun
+
+    if isinstance(fns, str):
+        fns = [fns]
+
+    ps = []
+    for fn in fns:
+        fp = Path(fn)
+
+        if not fp.suffix and not fp.is_file():
+            from dana import exampledata as ex
+
+            name = str(fp)
+            exampledfs = [x for x in dir(ex) if x.startswith("df_")]
+            if name in exampledfs:
+                import tempfile as tf
+
+                tdir = tf.TemporaryDirectory()
+                df = getattr(ex, str(name))()
+                fp = Path(tdir.name) / "tmp.csv"
+                df.to_csv(fp)
+
+        filetype = args.get("filetype", fp.suffix[1:])
+        targetfun = getattr(pd, f"read_{filetype}", None)
+        if not targetfun:
+            print(
+                f"found no parser for {fp}. "
+                "Consider specifying the file type by passing <filetype: x>."
+            )
+            return []
+        pa = partial(targetfun, fp)
+        args.setdefault("index_col", 0)
+        df = fun.callWithKnownArgs(pa, args)
+        ps.append(df.plot(backend="dana"))
+    return ps
 
 
 def exec():  # pragma: no cover: only called when directly used in foreign scripts

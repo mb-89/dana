@@ -68,14 +68,15 @@ class Browser(QtWidgets.QMainWindow):
 
     def run(self, file=None):
         """Run the given example (or the currently opened one)."""
-        if file is None:
+        if file is None and self.currentFile is not None:  # pragma: no cover
             file = self.currentFile
         if file is None:
             return
+        self.ui.code.setPlainText(open(file, "r").read())
         edittxt = self.ui.code.toPlainText()
         from dana.examples import runExample
 
-        results = runExample(self.currentFile.name, edittxt)
+        results = runExample(file, edittxt)
         self._buf = results
         return results
 
@@ -104,10 +105,10 @@ class Browser(QtWidgets.QMainWindow):
             parents = tuple(reversed(pr.parents))[1:]
             parentItem = items.get(parents)
             if parentItem is None:
-                if not parents:
+                if not parents:  # pragma: no cover / only needed once we have no nested examples
                     parentItem = root
-                else:  # pragma: no cover / only needed once we have nested examples
-                    grandparent = items.get(parents[:-1])
+                else:
+                    grandparent = items.get(parents[:-1], root)
                     parentItem = QtGui.QStandardItem(str(parents[-1].stem))
                     parentItem.setEditable(False)
                     grandparent.appendRow([parentItem])

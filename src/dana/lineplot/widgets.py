@@ -121,7 +121,9 @@ class DanaGraphicsLayoutWidget(pg.GraphicsLayoutWidget):
 class DanaPlotItem(pg.PlotItem):
     """Subclass of PlotItem with some convenience modifications."""
 
-    def __init__(self,):
+    def __init__(
+        self,
+    ):
         super().__init__()
         self.addLegend()
         self.showGrid(1, 1, 0.6)

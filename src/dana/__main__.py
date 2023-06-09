@@ -1,4 +1,4 @@
-"""Analyzes and plots data."""
+"""Analyzes and plots data. For Examples: py -m dana --examples."""
 try:  # pragma: no cover
     from dana.cli import main
 except ModuleNotFoundError:  # pragma: no cover

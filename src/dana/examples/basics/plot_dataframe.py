@@ -1,15 +1,9 @@
 """Basic example on how to plot a dataframe with the dana backend."""
-from math import sin
-
-import pandas as pd
 
 import dana as da
+import dana.exampledata as ex
 
-X = tuple(x * 0.05 for x in range(1000))
-Y = tuple(sin(x) for x in X)
-
-df = pd.DataFrame({"x": X, "sin_x": Y})
-df = df.set_index("x", drop=True)
+df = ex.df_sincos()
 
 p = df.plot(backend="dana", title="Basic example")
 p.show()
