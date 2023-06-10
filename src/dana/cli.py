@@ -41,8 +41,10 @@ def main(argv, exec=True):
         plts = dana.plotfiles(args["src"], args=addargs)
         for p in plts:
             p.show()
-        if exec:  # pragma: no cover / dont exec during automated tests, or we stall the executor
-            dana.exec()
+        if (
+            exec and plts
+        ):  # pragma: no cover / dont exec during automated tests, or we stall the executor
+            plts[-1].exec()
     return 0
 
 

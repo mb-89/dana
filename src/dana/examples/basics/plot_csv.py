@@ -25,4 +25,4 @@ for p in plts:
     p.show()
 
 if __name__ == "__main__":
-    da.exec()
+    p.exec()

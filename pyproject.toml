@@ -1,4 +1,4 @@
-dependencies = ["matplotlib~=3.6.0", "pyqtgraph~=0.13.1", "pandas~=1.4.3", "ipython~=8.14.0", "PySide6~=6.5.1.1"]
+dependencies = ["dtreeviz~=2.2.1", "pyqtgraph~=0.13.1", "matplotlib~=3.6.0", "pandas~=1.4.3", "yellowbrick~=1.5", "numpy~=1.23.0", "ipython~=8.14.0", "PySide6~=6.5.1.1", "scikit_learn~=1.2.2"]
 [project]
 name = "dana"
 version = "0.0.0"
@@ -47,11 +47,15 @@ isolated_build = true
 
 [testenv]
 deps = 
-    matplotlib~=3.6.0
+    dtreeviz~=2.2.1
         pyqtgraph~=0.13.1
+        matplotlib~=3.6.0
         pandas~=1.4.3
+        yellowbrick~=1.5
+        numpy~=1.23.0
         ipython~=8.14.0
         PySide6~=6.5.1.1
+        scikit_learn~=1.2.2
         pytest
         pytest-qt
 setenv = 

@@ -10,6 +10,8 @@ def plot(data, kind, **kwargs):
     """Plot the given dataframe."""
     import pyqtgraph as pg
 
+    import dana as da
+
     try:
         from IPython import get_ipython
 
@@ -32,6 +34,12 @@ def plot(data, kind, **kwargs):
             from dana.lineplot import createPlot
 
             p = createPlot(data, **kwargs)
+
+        case "decision tree":
+            from dana.decisiontree import createPlot
+
+            p = createPlot(data, **kwargs)
+
         case _:
             p = data.plot(backend="matplotlib", kind=kind, **kwargs)
 
@@ -42,6 +50,9 @@ def plot(data, kind, **kwargs):
         ipy.magic("gui qt")
 
     p.resize(1200, 800)
+
+    p.exec = da.exec if isinstance(p, pg.QtWidgets.QWidget) else lambda: None
+
     return p
 
 
@@ -107,7 +118,8 @@ def plotfiles(fns, args={}):
         pa = partial(targetfun, fp)
         args.setdefault("index_col", 0)
         df = fun.callWithKnownArgs(pa, args)
-        ps.append(df.plot(backend="dana"))
+
+        ps.append(df.plot(backend="dana", kind=args.pop("kind", "line"), **args))
     return ps
 
 
@@ -121,7 +133,10 @@ def exec():  # pragma: no cover: only called when directly used in foreign scrip
 def mkQApp():
     """Create a qt app. Needed before constructing any widgets."""
     import pyqtgraph as pg
+    from PySide6 import QtQuick
 
+    pg.QtCore.QCoreApplication.setAttribute(pg.QtCore.Qt.AA_ShareOpenGLContexts)
+    QtQuick.QQuickWindow.setGraphicsApi(QtQuick.QSGRendererInterface.OpenGL)
     pg.mkQApp()
 
 

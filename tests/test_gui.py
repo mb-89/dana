@@ -4,7 +4,6 @@ from dana.examples import _browser
 
 
 def test_examples(qtbot):
-
     win = _browser.Browser()
     win.show()
     qtbot.addWidget(win)
@@ -26,13 +25,19 @@ def test_examples(qtbot):
     qtbot.wait(100)
 
 
-def test_edgecases(qtbot):
-
+def test_edgecases_general(qtbot):
     df = pd.DataFrame()
     p1 = df.plot(backend="dana")  # noqa: F841
     df["x"] = [0, 1, 2]
     p2 = df.plot(backend="dana", plugins=[])  # noqa: F841
     p3 = df.plot(backend="dana", kind="barh")  # noqa: F841
+
+
+def test_edgecases_decisiontree(qtbot):
+    from dana.decisiontree import widgets
+
+    b = widgets.PlotBuilder()
+    b.setSrc(None, "name")
 
 
 def test_cli_plot(qtbot):
