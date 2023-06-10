@@ -1,17 +1,30 @@
+import tempfile
+from pathlib import Path
+
 import pandas as pd
+from dtreeviz.utils import DTreeVizRender
 
 from dana.examples import _browser
 
 
-def test_examples(qtbot):
+def test_examples(qtbot, monkeypatch):
     win = _browser.Browser()
     win.show()
     qtbot.addWidget(win)
     # we need to store the qt objects,
     # else they get destroyed immediately
     objects = []
-    for example in win.fileList:
-        objects.append(win.run(example.data(_browser.DATA.PATH.value)))
+    with tempfile.TemporaryDirectory() as td:
+        htmlf = Path(td) / "tmp.svg"
+        open(htmlf, "w").write("")
+
+        def mockSVG(*args, **kwargs):
+            return htmlf
+
+        with monkeypatch.context() as m:
+            m.setattr(DTreeVizRender, "save_svg", mockSVG)
+            for example in win.fileList:
+                objects.append(win.run(example.data(_browser.DATA.PATH.value)))
 
     # edge-case:
     win.currentFile = None
